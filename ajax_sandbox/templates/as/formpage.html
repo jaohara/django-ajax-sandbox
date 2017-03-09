@@ -1,0 +1,44 @@
+{% extends 'as/base.html' %}
+
+{% block page_title %} - Form Page{% endblock %}
+
+{% block content %}
+    
+    <form id="form">
+
+        {% csrf_token %}
+
+        <p>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" class="required"/>
+        </p>
+
+        <p>
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email" class="required"/>
+        </p>
+
+        <p>
+            <label for="word">Word:</label>
+            <input type="text" id="word" name="word" />
+        </p>
+
+        <p>
+            <input type="submit" />
+        </p>
+    </form>
+
+{% endblock %}
+
+{% block sandbox_js %}
+    <script type="text/javascript">
+
+        $("#form").submit(function(event){
+            event.preventDefault();
+            $("#p-1").html(function(){
+                return $("#form").serialize();
+            });
+        });
+
+    </script>
+{% endblock %}

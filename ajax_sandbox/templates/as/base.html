@@ -1,0 +1,99 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Django Ajax Sandbox{% block page_title %}{% endblock %}</title>
+
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:400,600|Bevan"
+            rel="stylesheet" type="text/css">
+
+        <!-- H5BP -->
+        <link rel="stylesheet" href="{% static 'css/main.css' %}">
+        <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+
+        <link rel="stylesheet" href="{% static 'css/sandbox.css' %}">
+        
+    </head>
+    <body>
+        <div id="alert-box" class="success"></div>
+
+        <header><h1>Django Ajax Sandbox</h1>{% block header %}{% endblock %}</header>
+
+        <nav>
+            <a href="{% url 'buttonpage' %}">Button</a> - 
+            <a href="{% url 'formpage' %}">Form</a> - 
+            <a href="{% url 'recordpage' %}">Record</a>
+        </nav>
+        
+            <main>
+                {% block content %}{% endblock %}
+
+                <p id="p-1"></p>
+
+                <p id="p-2"></p>
+
+                <p id="p-3"></p>
+            </main>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            var defaultDelay = 3000;
+
+            function displayError(message, delay){
+                $("#alert-box").html(message);
+                $("#alert-box").fadeIn(600).delay(delay).fadeOut(600);
+            }
+
+            function displaySuccess(message, delay){
+                $("#alert-box").html(message);
+                $("#alert-box").addClass("success");
+                $("#alert-box").fadeIn(600).delay(delay).fadeOut(600);
+                $("#alert-box").removeClass("success");
+            }
+
+
+            /* 
+                This is important for preventing 403 errors when submitting AJAX POST requests.
+                This has to do with the cross-site request forgery security measures, the same
+                reason that you use the csrf_token tag. 
+
+                What we want to do is to use this getCookie method to grab the CSRF token embedded
+                in the request and include it in the POST headers. We'll include it by overriding
+                the jQuery beforeSend method on an AJAX request.
+            */
+
+            function getCookie(name){
+                var cookieValue = null;
+
+                if (document.cookie && document.cookie != ""){
+                    var cookies = document.cookie.split(";");
+
+                    for (var i = 0; i < cookies.length; i++){
+                        var cookie = jQuery.trim(cookies[i]);
+
+                        // does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + "=")){
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+
+                return cookieValue;
+            }
+
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings){
+                    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))){
+                        //only send the token to relative URLs, i.e. locally
+                        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                    }
+                }
+            });
+
+        </script>
+        {% block sandbox_js %}{% endblock %}
+    </body>
+</html>

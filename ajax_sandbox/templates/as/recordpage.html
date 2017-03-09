@@ -1,0 +1,178 @@
+{% extends 'as/base.html'%}
+
+{% block page_title %} - Record Page{% endblock %}
+
+{% block content %}
+
+    <form id="record-form">
+        <p>
+            <label for="string">String: </label>
+            <input type="text" name="string" id="id_string" />
+        </p>
+
+        <p>
+            <label for="int">Int: </label>
+            <input type="text" name="int" id="id_int" />
+        </p>
+
+        <p>
+            <input type="submit" value="Add Record" />
+        </p>
+    </form>
+
+    <table id="record-table">
+        <thead>
+            <th>String</th>
+            <th>Int</th>
+            <th>Created</th>
+            <th>Delete?</th>
+        </thead>
+    </table>
+
+{% endblock %}
+
+{% block sandbox_js %}
+    <script type="text/javascript">
+
+        function appendAllRecords(){
+            $.ajax({
+                url: '/list_record/all',
+                dataType: 'json',
+                type: "GET",
+                success: function(response){
+                    var trHTML = "";
+
+
+                    /*
+
+
+                        RESUME WORKING HERE
+
+                        What's up with how the reponse object is returned? I know it's an 
+                        object, but I'm not sure of what type it is and how to access the
+                        data contained within. When I do the following lines of code, each
+                        of the value.values returns "Undefined."
+
+                        Besides that, the whole thing works. I just need to figure out how to parse
+                        the data I'm returning.
+
+                        I should learn what type of data it is, and how to modify it within
+                        my javascript.
+
+                        I think it's JSON?
+
+
+
+
+                    */
+                    $.each(response.records, function(index){
+                        trHTML +=
+                            "<tr id='record-pk-" + response.records[index][0] +
+                            "''><td>" + response.records[index][1] +
+                            "</td><td>" + response.records[index][2] +
+                            "</td><td>" + response.records[index][3] +
+                            "</td><td><button class='record-delete'>Delete Record</button></tr>";
+                    });
+
+                    $("#record-table").append(trHTML);
+                }
+            });
+
+        }
+
+        function appendLatestRecord(){
+            /*
+            $.ajax({
+                url: '/list_record/latest/';
+            })
+            */
+        }
+
+        function appendRecord(pk){
+            $.ajax({
+                url: '/list_record/'.concat(pk),
+                dataType: 'json',
+                type: "GET",
+                success: function(response){
+
+                    var record = $.parseJSON(response.record);
+
+                    var trHTML = 
+                        "<tr id='record-pk-" + record.pk +
+                        "''><td>" + record.fields.my_string +
+                        "</td><td>" + record.fields.my_int +
+                        "</td><td>" + record.fields.created +
+                        "</td><td><button class='record-delete'>Delete Record</button></tr>";
+
+                    $("#record-table").append(trHTML);
+                    bindButtonDeletion();
+                }
+            });
+        }
+
+        function bindButtonDeletion(unbindBeforeSetting = true){
+
+            // unbind all click events before re-adding
+            if (unbindBeforeSetting == true)
+                $(".record-delete").unbind("click");
+
+            $("body").on('click', '.record-delete', function(event){ 
+                event.preventDefault();
+
+                // make ajax call to delete object with pk = parent id "record-pk-#"
+                var parentRow = $(this).parent().parent();
+                var recordPk = parentRow.attr("id").split("-")[2];
+
+                $.ajax({
+                    url: '/delete_record/'.concat(recordPk + "/"),
+                    dataType: 'json',
+                    type: "POST",
+                    success: function(data){
+                        //displaySuccess(data.result_message, defaultDelay);
+                        parentRow.fadeOut().remove();
+                    }
+                });
+            });
+        }
+
+        $("#record-form").submit(function(event){
+            event.preventDefault();
+
+            var intRegex = /^\d+$/;
+
+            var intValue = $("#id_int").val();
+
+            var stringLengthTest = $("#id_string").val().length > 0;
+            var intLengthTest = intValue.length > 0;
+            var intRegexTest = intRegex.test(intValue);
+
+            if (stringLengthTest && intLengthTest && intRegexTest){
+                $.ajax({
+                    url: '/create_record/',
+                    data: {
+                        record_string: $("#id_string").val(), 
+                        record_int: $("#id_int").val()
+                    },
+                    dataType: 'json',
+                    type: "POST",
+                    success: function(data){
+                        //displaySuccess(data.result_message, defaultDelay);
+                        appendRecord(data.record_pk);
+                    }
+                });
+            } else if (!stringLengthTest){
+                displayError("Please provide a string.", defaultDelay);
+            } else if (!intLengthTest){
+                displayError("Please provide an integer.", defaultDelay);
+            } else if (!intRegexTest){
+                displayError("Please make sure that the value provided is an integer.", defaultDelay);
+            }
+        });
+
+
+        $(document).ready(function(){
+            appendAllRecords();
+            bindButtonDeletion();
+        });
+    </script>
+{% endblock %}

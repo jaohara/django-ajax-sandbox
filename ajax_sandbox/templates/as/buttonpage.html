@@ -1,0 +1,58 @@
+{% extends 'as/base.html' %}
+
+{% block page_title %} - Button Page{% endblock %}
+
+{% block content %}
+
+    <button id="button-1" class="sand-button">Modify P-1</button><br /> <br />
+    <input type="text" id="field-1" value="1024"/>
+    <button id="button-2" class="sand-button">Modify P-2</button>
+
+{% endblock %}
+
+{% block sandbox_js %}
+    <script>
+
+        $("#button-1").on('click', function(){
+
+            $.ajax({
+                url: '/random_word/',
+                dataType: 'json',
+                success: function(data){
+                    $("#p-1").html(data.word);
+                }
+            });
+            
+        });
+
+        $("#button-2").on('click', function(){
+            var inputtedMaxRange = $("#field-1").val();
+            var maxRangeRegex = /^\d*$/;
+
+            if (!maxRangeRegex.test(inputtedMaxRange)){
+                displayError("Please provide an integer.", defaultDelay);
+            }
+            else{
+                $.ajax({
+                    url: '/random_int/'.concat($("#p-2").val()),
+                    data: {max_range: $("#field-1").val()},
+                    dataType: 'json',
+                    type: "GET",
+                    success: function(data){
+                        $("#p-2").html(data.int);
+                        $("#p-3").html(data.max_range);
+                        
+                    }
+                });
+            }
+        });
+
+        
+        $("#field-1").on('focus', function(){
+            if ($(this).val() == 1024){
+                $(this).val("");
+            }
+        })
+        
+    </script>
+{% endblock %}

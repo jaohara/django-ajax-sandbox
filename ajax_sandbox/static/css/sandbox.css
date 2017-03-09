@@ -1,0 +1,69 @@
+body{
+    font-family: 'Raleway';
+    font-size: 1.2em;
+    margin: 2.0em auto;
+    width: 80%;
+}
+
+body header, #alert-box{
+    font-family: 'Bevan';
+    font-size: 1.4em;
+    text-shadow: 1px 1px 0px rgba(102, 102, 102, .7),
+                 2px 2px 0px rgba(102, 102, 102, .5),
+                 3px 3px 0px rgba(102, 102, 102, .3),
+                 4px 4px 0px rgba(102, 102, 102, .1);
+}
+
+header * {
+    margin: 0em;
+}
+
+header, nav, main{
+    margin-top: 1.0em;
+}
+
+header, nav {
+    text-align: center;
+}
+
+main{
+    width: 75%;
+    margin: 1.0em auto;
+}
+
+table{
+    width: 100%;
+}
+
+table thead{
+    background: #ccc;
+}
+table tr{
+    border-top: 1px solid #333;
+}
+
+#alert-box{
+    align-items: center;        /* TO CENTER */
+    /*background: rgba(251, 49, 77, 0.9);*/
+    color: #ddd;
+    display: none;
+    font-family: 'Bevan';
+    font-size: 2.0em;
+    justify-content: center;    /* TO CENTER */
+    left: 0;
+    padding-top: .2em;
+    min-height: 10vh;
+    position: fixed;
+    text-align: center;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+}
+
+div #alert-box.success{
+    background: rgba(7, 145, 67, 0.9);
+}
+
+#alert-box.visible{
+    display: flex;
+}
